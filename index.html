@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITILITE Travel Communication Bot - Enterprise Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .header {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+        }
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            margin-left: 12px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            margin-bottom: 16px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .customer-name-field {
+            margin: 16px 0 20px 0;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .output-area {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 450px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            border: 2px solid #e2e8f0;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+        .status {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .status.success {
+            background: #f0fff4;
+            color: #276749;
+            border-left: 4px solid #48bb78;
+        }
+        .status.error {
+            background: #fff5f5;
+            color: #9b2c2c;
+            border-left: 4px solid #f56565;
+        }
+        .status.loading {
+            background: #ebf8ff;
+            color: #2c5282;
+            border-left: 4px solid #4299e1;
+        }
+        .example-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .chip {
+            background: #edf2f7;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+        .chip:hover {
+            background: #cbd5e0;
+            transform: translateY(-1px);
+        }
+        .copy-btn {
+            background: #48bb78;
+            margin-top: 16px;
+            width: 100%;
+        }
+        .copy-btn:hover {
+            background: #38a169;
+        }
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✈️ ITILITE Enterprise Travel Communication Bot 
+                <span class="badge">Powered by Gemini 2.5 Flash</span>
+            </h1>
+            <p class="subtitle">Complete integration of ITILITE Communication Playbook - Flights | Hotels | Car Rentals | Policy | Escalations</p>
+        </div>
+
+        <!-- Input Card -->
+        <div class="card">
+            <div class="card-title">📝 Agent Input</div>
+            <textarea id="rawInput" rows="8" placeholder="Paste agent notes here...&#10;&#10;Examples:&#10;• Flight UA123 ORD to SFO 5pm cancelled. Customer at gate, frustrated. VIP client. Need rebook tomorrow morning.&#10;• Hotel overbooked at Marriott Downtown, customer stranded at 11pm, exhausted. Need immediate alternative.&#10;• Rental car: Customer booked SUV, Hertz trying to give compact car. 4 people with luggage.&#10;• Fare increase: $230 fare no longer valid, now $600 difference. Customer may be upset."></textarea>
+            
+            <div class="controls">
+                <select id="product">
+                    <option value="flight">✈️ Flight</option>
+                    <option value="hotel">🏨 Hotel</option>
+                    <option value="car">🚗 Car Rental</option>
+                    <option value="policy">📋 Policy/Refund</option>
+                    <option value="escalation">⚠️ Complaint/Escalation</option>
+                </select>
+                <select id="channel">
+                    <option value="email">📧 Email (Structured)</option>
+                    <option value="chat">💬 Chat (Concise)</option>
+                </select>
+                <select id="tone">
+                    <option value="empathetic">❤️ Empathetic & Supportive</option>
+                    <option value="professional">📊 Professional & Direct</option>
+                    <option value="executive">👔 Executive/VIP</option>
+                </select>
+                <select id="urgency">
+                    <option value="normal">🟢 Normal</option>
+                    <option value="high">🟡 High - Urgent</option>
+                    <option value="critical">🔴 Critical - Travel Disruption</option>
+                </select>
+            </div>
+            
+            <div class="customer-name-field">
+                <label style="font-size: 12px; font-weight: 600; color: #6c757d; margin-bottom: 6px; display: block;">👤 Customer Name (for emails)</label>
+                <input type="text" id="customerName" placeholder="Enter customer name (e.g., John Smith)">
+            </div>
+
+            <button onclick="generateResponse()" id="generateBtn">✨ Generate Professional Response</button>
+            
+            <div class="example-chips">
+                <div class="chip" onclick="loadExample('flight_cancellation')">✈️ Flight Cancelled</div>
+                <div class="chip" onclick="loadExample('flight_delay')">⏰ Flight Delayed</div>
+                <div class="chip" onclick="loadExample('hotel_overbooked')">🏨 Hotel Overbooked</div>
+                <div class="chip" onclick="loadExample('car_rental')">🚗 Car Rental Issue</div>
+                <div class="chip" onclick="loadExample('fare_increase')">💲 Fare Increase</div>
+                <div class="chip" onclick="loadExample('angry_customer')">😤 Angry Customer</div>
+                <div class="chip" onclick="loadExample('refund')">💰 Refund Request</div>
+                <div class="chip" onclick="loadExample('missed_connection')">🔄 Missed Connection</div>
+            </div>
+        </div>
+
+        <!-- Output Card -->
+        <div class="card">
+            <div class="card-title">📧 Professional Response</div>
+            <div id="output" class="output-area">
+                ✨ Your polished, customer-ready response will appear here...
+            </div>
+            <div id="status"></div>
+            <button class="copy-btn" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3005/api';
+        
+        function getProductGuidelinesShort(product) {
+            const guidelines = {
+                flight: 'Focus on flight details: flight numbers, times, rebooking options, airline policies, seat assignments.',
+                hotel: 'Focus on hotel details: check-in/out, room type, payment method, loyalty memberships, overbooking resolution.',
+                car: 'Focus on rental details: vehicle type, pickup/dropoff, payment at counter, insurance, membership numbers.',
+                policy: 'Focus on explaining policies clearly: refunds, credits, fare rules, approval workflows.',
+                escalation: 'Focus on de-escalation: listen, acknowledge, take ownership, offer resolution, escalate if needed.'
+            };
+            return guidelines[product] || 'Handle the scenario professionally using ITILITE communication style.';
+        }
+        
+        function buildSystemPrompt(product, channel, tone, urgency, customerName) {
+            return `You are an elite customer support AI for ITILITE, a corporate travel and expense management platform. You have been trained on ITILITE's actual communication style, templates, and tone.
+
+## ITILITE'S COMMUNICATION STYLE (LEARNED FROM REAL TEMPLATES):
+
+### Tone & Voice:
+- Warm and professional: "Greetings from ITILITE!"
+- Clear and direct: "We are pleased to inform you..."
+- Solution-focused: "Here are your options..."
+- Empathetic but neutral: "We understand plans can change" (never assume customer emotion)
+- Transparent: "Fares are not guaranteed until booked"
+
+### Key Phrases to Use:
+- Opening: "Greetings from ITILITE!"
+- For confirmations: "We are pleased to inform you..."
+- For delays: "We wanted to reach out to you regarding..."
+- For bad news: "We regret to inform you..." or "Unfortunately..."
+- For options: "Please find below... for your reference"
+- For follow-up: "Please let us know if you would like to proceed"
+- For closing: "If you have any further questions or need any clarification, please do not hesitate to contact us at +1 833 460 5669 or email us at bookings@itilite.com. You can also initiate a chat anytime for any assistance."
+- Sign-off: "Thanks, Team ITILITE!"
+
+### Subject Line Format (for emails):
+- For bookings: "Booking for the [City] - [City] trip (XXXX-XXXX)"
+- For updates: "[Brief Description] - Trip ID: XXXX-XXXX"
+- Keep it clear and reference Trip ID when available
+
+### Critical Disclaimers (use when applicable):
+- **For international/transit travel**: "Travelers are advised to diligently review and fulfill the entry requirements applicable to their travel destination or transit points"
+- **For fare changes**: "Please note that the fares and prices provided in these options are subject to change until the booking is confirmed"
+- **For payments**: "The total booking value must be paid directly to the [vendor] at the time of pickup"
+
+### How to Handle Different Scenarios:
+
+**Booking Confirmations:**
+- Be positive: "We are pleased to inform you..."
+- Include key details: flight/hotel/car information
+- Mention membership numbers if updated
+- Attach vouchers for reference
+
+**Fare Increases/Bad News:**
+- Be direct but professional: "We regret to inform you..." or "Unfortunately..."
+- Explain briefly: "Fares can change quickly due to availability"
+- State old vs new clearly
+- Provide options: proceed, look at alternatives, or hold
+- Never assume customer emotion - just state facts
+
+**Cancellations/Refunds:**
+- State what was cancelled: "Per your request, we have cancelled..."
+- Explain refund status: "Once we receive the refund from the [airline/hotel], it will be processed"
+- For non-refundable: "The value can be used as future credit"
+
+**Delays/Issues:**
+- Acknowledge: "We wanted to update you..."
+- Explain briefly: "Due to [reason], there is a slight delay"
+- Set expectations: "You can expect confirmation within [timeframe]"
+- Show action: "Our team is actively working on this"
+
+**Hotel/Car Rental Issues:**
+- Take ownership: "We are reaching out to share an update..."
+- Explain attempts made: "Despite multiple attempts through both our automated system and direct outreach..."
+- Provide alternatives: virtual card, pay at counter, etc.
+- Apologize professionally: "We apologize for any inconvenience this may cause"
+
+**Complaints/Escalations:**
+- Acknowledge the issue without admitting fault
+- Show you're taking action: "Our team is working diligently"
+- Offer resolution path
+- Escalate if needed: "We will have a specialist reach out"
+
+## CHANNEL: ${channel === 'email' ? 'EMAIL' : 'CHAT'}
+
+${channel === 'email' ? 
+`**EMAIL FORMAT:**
+- Use subject line with Trip ID when available
+- Opening: "Dear ${customerName || 'Valued Traveler'}," then "Greetings from ITILITE!"
+- Body: Clear, concise, solution-focused
+- Closing: Use the standard ITILITE closing with contact details
+- Sign-off: "Thanks, Team ITILITE!"` : 
+`**CHAT FORMAT:**
+- No formal greeting or closing needed
+- Concise and conversational
+- Friendly but professional
+- Quick to the point`}
+
+## TONE: ${tone === 'empathetic' ? 'EMPATHETIC' : tone === 'professional' ? 'PROFESSIONAL' : 'EXECUTIVE'}
+${tone === 'empathetic' ? '- Warm and supportive\n- "We understand..."\n- "We appreciate your patience..."' : 
+  tone === 'professional' ? '- Direct and efficient\n- Clear and factual\n- Solution-focused' :
+  '- Action-biased\n- Brief and confident\n- "Consider this handled"'}
+
+## URGENCY: ${urgency.toUpperCase()}
+${urgency === 'critical' ? '- Immediate attention\n- "You are my top priority"\n- Proactive follow-up' : 
+  urgency === 'high' ? '- Fast response\n- Clear next steps\n- Time-sensitive handling' :
+  '- Standard handling\n- Thorough and complete'}
+
+## PRODUCT: ${product.toUpperCase()}
+${getProductGuidelinesShort(product)}
+
+## CRITICAL RULES:
+1. NEVER assume the customer's emotion - don't say "I understand you're frustrated"
+2. NEVER blame the customer, airline, or hotel
+3. ALWAYS use neutral, factual language for bad news
+4. ALWAYS provide clear next steps or options
+5. USE the standard ITILITE closing for all emails
+6. INCLUDE the visa disclaimer for international travel
+7. USE the subject line format for booking-related emails
+8. BE human, not robotic - sound like a helpful travel assistant
+
+Now, analyze the agent's notes and create a professional, ITILITE-style response that fits the scenario. Use the templates as inspiration for tone and style, but adapt to the specific situation.`;
+        }
+
+        async function generateResponse() {
+            const rawInput = document.getElementById('rawInput').value.trim();
+            if (!rawInput) {
+                showStatus('Please enter agent notes first', 'error');
+                return;
+            }
+
+            const product = document.getElementById('product').value;
+            const channel = document.getElementById('channel').value;
+            const tone = document.getElementById('tone').value;
+            const urgency = document.getElementById('urgency').value;
+            const customerName = document.getElementById('customerName').value.trim();
+            
+            const systemPrompt = buildSystemPrompt(product, channel, tone, urgency, customerName);
+
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '⏳ Generating with AI...';
+            showStatus('Applying ITILITE Communication Playbook...', 'loading');
+            document.getElementById('output').innerHTML = '✨ Crafting your professional response...';
+
+            try {
+                const response = await fetch(`${API_URL}/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        systemPrompt: systemPrompt,
+                        userInput: rawInput
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('output').innerHTML = data.response.replace(/\n/g, '<br>');
+                    showStatus('✅ Response ready! Copy and send to customer.', 'success');
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                let errorMsg = error.message;
+                if (errorMsg.includes('Failed to fetch')) {
+                    errorMsg = 'Cannot connect to backend. Make sure server is running (npm start)';
+                }
+                showStatus('❌ Error: ' + errorMsg, 'error');
+                document.getElementById('output').innerHTML = `Error: ${errorMsg}\n\nMake sure you've started the server with: npm start\nAnd the PowerShell window is still open.`;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '✨ Generate Professional Response';
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => {
+                if (statusDiv.innerHTML.includes(message)) {
+                    statusDiv.innerHTML = '';
+                }
+            }, 5000);
+        }
+
+        async function copyToClipboard() {
+            const output = document.getElementById('output').innerText;
+            if (!output || output.includes('Your polished response')) {
+                showStatus('Nothing to copy yet. Generate a response first.', 'error');
+                return;
+            }
+            
+            try {
+                await navigator.clipboard.writeText(output);
+                showStatus('📋 Copied to clipboard! Ready to send.', 'success');
+            } catch (err) {
+                showStatus('Failed to copy. Select text and press Ctrl+C', 'error');
+            }
+        }
+
+        function loadExample(type) {
+            const examples = {
+                flight_cancellation: 'Flight UA123 from Chicago to San Francisco at 5pm was cancelled at the gate. Customer is frustrated and needs to rebook for tomorrow morning. They have an important meeting at 9am. This is a VIP client.',
+                flight_delay: 'Flight DL456 from JFK to LAX is delayed 3 hours. New departure 8pm. Customer is worried about missing their rental car pickup that closes at 9pm. Need assistance.',
+                hotel_overbooked: 'Customer at Marriott Downtown says they have no rooms available despite confirmed booking. It\'s 11pm and customer is exhausted. Need immediate resolution. VIP traveler.',
+                car_rental: 'Customer booked an SUV for team of 4 with equipment. Hertz is trying to give them a compact car. They are at the counter now and frustrated.',
+                fare_increase: 'Need to deliver bad news - the price $230 we shared earlier is no longer valid. New fare difference is $600 for NYC to London flight. Customer may be upset.',
+                angry_customer: 'This is the third time the app booked a hotel with shared bathroom. Customer is very angry and threatening to cancel the company contract. Need to fix immediately and escalate.',
+                refund: 'Customer requesting refund for non-refundable ticket. They have a medical emergency with a doctor\'s note. The flight was for a business meeting that got cancelled.',
+                missed_connection: 'Customer missed connection in ATL due to first flight delay. Original flight DL789 to MIA. Now stuck at airport, stressed about evening plans. Need to rebook.'
+            };
+            
+            document.getElementById('rawInput').value = examples[type] || examples.flight_cancellation;
+            showStatus(`Loaded ${type.replace('_', ' ')} example. Click Generate to continue.`, 'success');
+        }
+        
+        async function checkBackend() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (response.ok) {
+                    console.log('✅ Backend is running');
+                }
+            } catch (error) {
+                console.log('⚠️ Backend not running. Start with: npm start');
+                showStatus('⚠️ Backend not connected. Start server with: npm start', 'error');
+            }
+        }
+        
+        checkBackend();
+        
+        document.getElementById('rawInput').addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                generateResponse();
+            }
+        });
+    </script>
+</body>
+</html>
